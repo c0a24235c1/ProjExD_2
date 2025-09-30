@@ -3,6 +3,7 @@ import sys
 import pygame as pg
 import time
 import random
+import math
 
 
 WIDTH, HEIGHT = 1100, 650
@@ -79,6 +80,23 @@ def get_kk_imgs(img: pg.Surface) -> dict[tuple[int, int], pg.Surface]:
     }
     return kk_dict
 
+def calc_orientation(org: pg.Rect, dst: pg.Rect, current_xy: tuple[float, float]) -> tuple[float, float]:
+    far_x_vec = org.centerx - dst.centerx
+    far_y_vec = org.centery - dst.centery
+    far_xy_vec = math.sqrt(far_x_vec**2 + far_y_vec**2)
+    if far_xy_vec < 300:
+        ret_vec = current_xy
+    else:
+        pre_x_norm = far_x_vec / math.sqrt(50)
+        pre_y_norm = far_y_vec / math.sqrt(50)
+        # x_norm = far_x_vec / pre_x_norm
+        # y_norm = far_y_vec / pre_y_norm
+        ret_vec=(pre_x_norm, pre_y_norm)
+    return ret_vec
+    
+
+
+    
 
 def main():
     pg.display.set_caption("逃げろ！こうかとん")
@@ -128,13 +146,17 @@ def main():
         if not tate:
             vy *= -1  # 縦移動を反転
         bb_img = bb_imgs[min(tmr//500, 9)]  # 500フレームごとにリスト内にある画像を切り替える
-        screen.blit(bb_img,bb_rct)
-        pg.display.update()
         avx = vx*bb_accs[min(tmr//500, 9)]  # 500フレームごとに基本速度に加速係数を掛ける
         avy = vy*bb_accs[min(tmr//500, 9)]  
+        bb_orient=calc_orientation(kk_rct, bb_rct, (avx, avy))  
+        bb_rct.move_ip(bb_orient)
+        screen.blit(bb_img,bb_rct)
+
+        pg.display.update()
         
         tmr += 1
-        bb_rct.move_ip(avx, avy)  # 爆弾移動
+        
+        #bb_rct.move_ip(avx, avy)  # 爆弾移動
         clock.tick(50)
 
 
