@@ -59,6 +59,25 @@ def init_bb_imgs() -> tuple[list[pg.Surface], list[int]]:
         bb_imgs[r-1] = bb_img
     return (bb_imgs, bb_accs)
 
+def get_kk_imgs(img: pg.Surface) -> dict[tuple[int, int], pg.Surface]:
+    """
+    引数: 画像サーフェス
+    戻り値: 「合計移動量のタプル」がキー、「その状態における画像サーフェス」が値の辞書
+    動作: 与えられた画像サーフェスをもとに、合計移動量をキー、その状態における適切な向きに回転させた画像サーフェスを値とする辞書を返す。
+    """
+    fliped_img = pg.transform.flip(img, True, False)
+    kk_dict = {
+        (0, 0): img,
+        (5, 0): pg.transform.rotozoom(fliped_img, 0, 1.0),
+        (5, 5): pg.transform.rotozoom(fliped_img, 315, 1.0),
+        (0, 5): pg.transform.rotozoom(fliped_img, 270, 1.0),
+        (-5, 5): pg.transform.rotozoom(img, 45, 1.0),
+        (-5, 0): pg.transform.rotozoom(img, 0, 1.0),
+        (-5, -5): pg.transform.rotozoom(img, -45, 1.0),
+        (0, -5): pg.transform.rotozoom(fliped_img, 90, 1.0),
+        (5,-5): pg.transform.rotozoom(fliped_img, 45, 1.0)
+    }
+    return kk_dict
 
 
 def main():
@@ -66,6 +85,7 @@ def main():
     screen = pg.display.set_mode((WIDTH, HEIGHT))
     bg_img = pg.image.load("fig/pg_bg.jpg")    
     kk_img = pg.transform.rotozoom(pg.image.load("fig/3.png"), 0, 0.9)
+    kk_dict = get_kk_imgs(kk_img)
     kk_rct = kk_img.get_rect()
     kk_rct.center = 300, 200
     bb_imgs, bb_accs = init_bb_imgs()
@@ -96,6 +116,7 @@ def main():
             if key_lst[key]==1:
                 sum_mv[0]+=mv[0]
                 sum_mv[1]+=mv[1]
+        kk_img = kk_dict[tuple(sum_mv)]  # 合計移動量に適切な向きの画像に変更
         kk_rct.move_ip(sum_mv)
         if check_bound(kk_rct) != (True, True):
             kk_rct.move_ip(-sum_mv[0], -sum_mv[1])
