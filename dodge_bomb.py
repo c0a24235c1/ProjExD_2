@@ -42,9 +42,22 @@ def gameover(screen: pg.Surface) -> None:
     gg_img.blit(kk_cry_img, (350, 300))
     gg_img.blit(kk_cry_img, (725, 300))
     
-    screen.blit(gg_img,gg_img_rct)
+    screen.blit(gg_img, gg_img_rct)
 
-
+def init_bb_imgs() -> tuple[list[pg.Surface], list[int]]:
+    """
+    引数: なし
+    戻り値: 2つの要素を持つタプル(サイズの異なる爆弾の画像のリスト, 1から10までの整数が格納されたリスト)
+    動作: サイズの異なる爆弾の画像を生成しリストに格納、加速度を格納したリストを生成、以上2つを渡す。
+    """
+    bb_accs = [i for i in range(1, 11)]
+    bb_imgs=[0 for i in range(10)]
+    for r in range(1, 11):
+        bb_img = pg.Surface((20*r, 20*r))
+        pg.draw.circle(bb_img, (255, 0, 0), (10*r, 10*r), 10*r)
+        bb_img.set_colorkey((0,0,0))
+        bb_imgs[r-1] = bb_img
+    return (bb_imgs, bb_accs)
 
 
 
@@ -55,10 +68,11 @@ def main():
     kk_img = pg.transform.rotozoom(pg.image.load("fig/3.png"), 0, 0.9)
     kk_rct = kk_img.get_rect()
     kk_rct.center = 300, 200
-    bb_img = pg.Surface((20, 20))  # 爆弾描写用の画像
-    pg.draw.circle(bb_img, (255, 0, 0), (10, 10), 10)  # 赤い爆弾を描写
-    bb_img.set_colorkey((0, 0, 0))  # 背景を透過
-    bb_rct = bb_img.get_rect()
+    bb_imgs, bb_accs = init_bb_imgs()
+    #bb_img = pg.Surface((20, 20))  # 爆弾描写用の画像
+    #pg.draw.circle(bb_img, (255, 0, 0), (10, 10), 10)  # 赤い爆弾を描写
+    #bb_img.set_colorkey((0, 0, 0))  # 背景を透過
+    bb_rct = bb_imgs[0].get_rect()
     bb_rct.centerx = random.randint(0, WIDTH)  # 爆弾のX座標
     bb_rct.centery = random.randint(0, HEIGHT)  # 爆弾のy座標
     vx = 5  # 爆弾の横方向移動速度
@@ -92,10 +106,14 @@ def main():
             vx *= -1  # 横移動を反転
         if not tate:
             vy *= -1  # 縦移動を反転
+        bb_img = bb_imgs[min(tmr//500, 9)]  # 500フレームごとにリスト内にある画像を切り替える
         screen.blit(bb_img,bb_rct)
         pg.display.update()
+        avx = vx*bb_accs[min(tmr//500, 9)]  # 500フレームごとに基本速度に加速係数を掛ける
+        avy = vy*bb_accs[min(tmr//500, 9)]  
+        
         tmr += 1
-        bb_rct.move_ip(vx,vy)  # 爆弾移動
+        bb_rct.move_ip(avx, avy)  # 爆弾移動
         clock.tick(50)
 
 
