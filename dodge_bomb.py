@@ -6,7 +6,22 @@ import random
 
 WIDTH, HEIGHT = 1100, 650
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
-DELTA = {pg.K_UP:(0,-5),pg.K_DOWN:(0,5),pg.K_LEFT:(-5,0),pg.K_RIGHT:(5,0)}
+DELTA = {pg.K_UP:(0, -5), pg.K_DOWN:(0, 5), pg.K_LEFT:(-5, 0), pg.K_RIGHT:(5, 0)}
+
+
+def check_bound(rct: pg.Rect) -> tuple[bool, bool] :
+    """
+    引数: こうかとんRect or 爆弾Rect
+    戻り値: 横・縦の真理値タプル(True: 画面内/ False: 画面外)
+    """
+    tate, yoko = True, True
+    if rct.left < 0 or WIDTH < rct.right:  # 左右にはみ出たら
+        yoko = False
+    if rct.top < 0 or HEIGHT < rct.bottom:  # 上下にはみ出たら
+        tate = False
+    return yoko, tate
+
+
 
 def main():
     pg.display.set_caption("逃げろ！こうかとん")
@@ -31,7 +46,6 @@ def main():
                 return
         screen.blit(bg_img, [0, 0]) 
 
-
         key_lst = pg.key.get_pressed()
         sum_mv = [0, 0]
         for key,mv in DELTA.items():
@@ -39,7 +53,15 @@ def main():
                 sum_mv[0]+=mv[0]
                 sum_mv[1]+=mv[1]
         kk_rct.move_ip(sum_mv)
+        if check_bound(kk_rct) != (True, True):
+            kk_rct.move_ip(-sum_mv[0], -sum_mv[1])
         screen.blit(kk_img, kk_rct)
+
+        yoko, tate = check_bound(bb_rct)
+        if not yoko:
+            vx *= -1  # 横移動を反転
+        if not tate:
+            vy *= -1  # 縦移動を反転
         screen.blit(bb_img,bb_rct)
         pg.display.update()
         tmr += 1
