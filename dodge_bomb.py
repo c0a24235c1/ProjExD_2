@@ -48,7 +48,7 @@ def gameover(screen: pg.Surface) -> None:
 def init_bb_imgs() -> tuple[list[pg.Surface], list[int]]:
     """
     引数: なし
-    戻り値: 2つの要素を持つタプル(サイズの異なる爆弾の画像のリスト, 1から10までの整数が格納されたリスト)
+    戻り値: 2つの要素を持つタプル(サイズの異なる爆弾の画像のリスト, 1から10までの整数を加速度として格納したリスト)
     動作: サイズの異なる爆弾の画像を生成しリストに格納、加速度を格納したリストを生成、以上2つを渡す。
     """
     bb_accs = [i for i in range(1, 11)]
@@ -56,7 +56,7 @@ def init_bb_imgs() -> tuple[list[pg.Surface], list[int]]:
     for r in range(1, 11):
         bb_img = pg.Surface((20*r, 20*r))
         pg.draw.circle(bb_img, (255, 0, 0), (10*r, 10*r), 10*r)
-        bb_img.set_colorkey((0,0,0))
+        bb_img.set_colorkey((0, 0, 0))
         bb_imgs[r-1] = bb_img
     return (bb_imgs, bb_accs)
 
@@ -149,6 +149,8 @@ def main():
         avx = vx*bb_accs[min(tmr//500, 9)]  # 500フレームごとに基本速度に加速係数を掛ける
         avy = vy*bb_accs[min(tmr//500, 9)]  
         bb_orient=calc_orientation(kk_rct, bb_rct, (avx, avy))  
+        avx *= bb_orient[0]
+        avy *= bb_orient[1]
         bb_rct.move_ip(bb_orient)
         screen.blit(bb_img,bb_rct)
 
