@@ -1,6 +1,7 @@
 import os
 import sys
 import pygame as pg
+import time
 import random
 
 
@@ -20,6 +21,30 @@ def check_bound(rct: pg.Rect) -> tuple[bool, bool] :
     if rct.top < 0 or HEIGHT < rct.bottom:  # 上下にはみ出たら
         tate = False
     return yoko, tate
+
+def gameover(screen: pg.Surface) -> None:
+    """
+    引数: gameover画面を表示するSurface
+    戻り値: なし 
+    動作: gameover画面を表示する関数
+    """
+    gg_img = pg.Surface((WIDTH, HEIGHT))
+    pg.draw.rect(gg_img, (0, 0, 0), (100,100,50,50))  # 黒色の矩形を生成
+    gg_img.set_alpha(180)  # 矩形の透明度を指定
+    gg_img_rct=gg_img.get_rect()
+    gg_img_rct.center=WIDTH/2,HEIGHT/2 #screenの中央に配置
+    
+    gg_font = pg.font.Font(None, 80)  # fontサイズ80のインスタンスを生成
+    gg_txt = gg_font.render("Game Over", True, (255, 255, 255))  # 白色の文字を付与
+    gg_img.blit(gg_txt, [400, 300])
+    
+    kk_cry_img=pg.image.load("./fig/8.png")
+    gg_img.blit(kk_cry_img, (350, 300))
+    gg_img.blit(kk_cry_img, (725, 300))
+    
+    screen.blit(gg_img,gg_img_rct)
+
+
 
 
 
@@ -46,6 +71,9 @@ def main():
                 return
         screen.blit(bg_img, [0, 0]) 
         if kk_rct.colliderect(bb_rct):
+            gameover(screen)
+            pg.display.update()
+            time.sleep(5)
             return
 
         key_lst = pg.key.get_pressed()
