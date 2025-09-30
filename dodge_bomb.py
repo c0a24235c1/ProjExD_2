@@ -81,6 +81,11 @@ def get_kk_imgs(img: pg.Surface) -> dict[tuple[int, int], pg.Surface]:
     return kk_dict
 
 def calc_orientation(org: pg.Rect, dst: pg.Rect, current_xy: tuple[float, float]) -> tuple[float, float]:
+    """
+    引数: 自身の位置情報 and 目的地の位置情報 and 「現在のxベクトルとyベクトル」を保持したタプル
+    戻り値: 「「xベクトル」と「yベクトル」」を保持したタプル
+    動作: 自身の現在地と目的地の位置情報から、自身の次のベクトルを決める
+    """
     far_x_vec = org.centerx - dst.centerx
     far_y_vec = org.centery - dst.centery
     far_xy_vec = math.sqrt(far_x_vec**2 + far_y_vec**2)
